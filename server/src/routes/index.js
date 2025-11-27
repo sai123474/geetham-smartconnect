@@ -12,6 +12,7 @@ import analyticsRoutes from "./analyticsRoutes.js";
 import leaveRoutes from "./leaveRoutes.js";
 import hostelRoutes from "./hostelRoutes.js";
 import studentImportRoutes from "./studentImportRoutes.js";
+import logRoutes from "./logRoutes.js";
 
 const router = express.Router();
 
@@ -38,7 +39,7 @@ router.use("/analytics", analyticsRoutes);
 router.use("/leave", leaveRoutes);
 router.use("/hostel", hostelRoutes);
 router.use("/students/import-csv", studentImportRoutes);
-
+router.use("/logs", logRoutes);
 
 
 export default router;
