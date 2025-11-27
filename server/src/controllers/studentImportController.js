@@ -1,5 +1,69 @@
 import csv from "csvtojson";
 import { Student } from "../models/Student.js";
+import { Student } from "../models/Student.js";
+import { User } from "../models/User.js";
+
+export const confirmStudentImport = async (req, res, next) => {
+  try {
+    const { rows } = req.body;
+
+    if (!rows || !Array.isArray(rows) || rows.length === 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "No student rows to import",
+      });
+    }
+
+    const createdStudents = [];
+    const createdLogins = [];
+
+    for (const r of rows) {
+      // Create student
+      const student = await Student.create({
+        name: r.name,
+        phone: r.phone,
+        parentName: r.parentName,
+        className: r.className,
+        section: r.section,
+        aadharNo: r.aadharNo,
+        address: r.address,
+        academicYear: r.academicYear,
+        isActive: true,
+      });
+
+      // Create login account (default password = last 4 digits of phone)
+      const defaultPassword =
+        r.phone && r.phone.length >= 4
+          ? r.phone.slice(-4)
+          : Math.random().toString().slice(-4);
+
+      const login = await User.create({
+        name: r.name,
+        role: "student",
+        phone: r.phone,
+        studentId: student._id,
+        password: defaultPassword, // auto-hash in User model
+      });
+
+      createdStudents.push(student);
+      createdLogins.push({
+        studentName: student.name,
+        username: login.phone,
+        password: defaultPassword,
+      });
+    }
+
+    res.json({
+      status: "success",
+      message: "Student records and user logins created successfully",
+      totalImported: createdStudents.length,
+      accounts: createdLogins,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 export const previewStudentsCsv = async (req, res, next) => {
   try {
