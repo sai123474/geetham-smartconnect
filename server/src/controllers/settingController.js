@@ -39,3 +39,35 @@ export const getLogo = async (req, res, next) => {
     next(err);
   }
 };
+export const uploadSignature = async (req, res, next) => {
+  try {
+    const { role } = req.params;
+    if (!["principal", "dean", "teacher"].includes(role)) {
+      return res.status(400).json({ message: "Invalid signature role" });
+    }
+
+    const file = req.file;
+    if (!file) return res.status(400).json({ message: "Signature image required" });
+
+    const uploaded = await uploadToS3(
+      file.buffer,
+      `signature_${role}.png`,
+      file.mimetype,
+      "signatures"
+    );
+
+    await Setting.findOneAndUpdate(
+      { key: `${role}Signature` },
+      { value: uploaded.Location },
+      { upsert: true }
+    );
+
+    res.json({
+      status: "success",
+      signatureUrl: uploaded.Location
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
