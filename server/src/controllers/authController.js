@@ -5,8 +5,8 @@ import { ENV } from "../config/env.js";
 import { LoginSession } from "../models/LoginSession.js";
 
 // Generate JWT Token
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, ENV.JWT_SECRET, {
+const generateToken = (id, role, sessionId) => {
+  return jwt.sign({ id, role, sessionId }, ENV.JWT_SECRET, {
     expiresIn: "30d"
   });
 };
@@ -16,7 +16,7 @@ export const registerUser = async (req, res, next) => {
     const { name, email, phone, password, role } = req.body;
 
     if (!name || !password) {
-      return res.status(400).json({ message: "Name & Password are required" });
+      return res.status(400).json({ message: "Name & Password required" });
     }
 
     const existing = await User.findOne({ $or: [{ email }, { phone }] });
@@ -35,7 +35,7 @@ export const registerUser = async (req, res, next) => {
       passwordHash
     });
 
-    return res.status(201).json({
+    res.status(201).json({
       status: "success",
       message: "User registered",
       user: {
@@ -48,28 +48,6 @@ export const registerUser = async (req, res, next) => {
     next(error);
   }
 };
-const userAgent = req.headers["user-agent"] || "Unknown device";
-const ip = req.ip || req.connection.remoteAddress;
-
-const session = await LoginSession.create({
-  user: user._id,
-  userAgent,
-  ip,
-});
-
-// include sessionId inside token payload
-const token = jwt.sign(
-  { id: user._id, sessionId: session._id },
-  process.env.JWT_SECRET,
-  { expiresIn: "7d" }
-);
-
-// send token as before
-res.json({
-  status: "success",
-  token,
-  user: { id: user._id, name: user.name, role: user.role },
-});
 
 export const loginUser = async (req, res, next) => {
   try {
@@ -83,16 +61,21 @@ export const loginUser = async (req, res, next) => {
       $or: [{ email: emailOrPhone }, { phone: emailOrPhone }]
     });
 
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
+    if (!user) return res.status(401).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
+    if (!isMatch) return res.status(401).json({ message: "Invalid password" });
 
-    const token = generateToken(user._id, user.role);
+    const userAgent = req.headers["user-agent"] || "Unknown device";
+    const ip = req.ip || req.connection?.remoteAddress || "Unknown IP";
+
+    const session = await LoginSession.create({
+      user: user._id,
+      userAgent,
+      ip
+    });
+
+    const token = generateToken(user._id, user.role, session._id);
 
     return res.json({
       status: "success",
@@ -100,10 +83,13 @@ export const loginUser = async (req, res, next) => {
       user: {
         id: user._id,
         name: user.name,
-        role: user.role
+        role: user.role,
+        device: userAgent,
+        ip
       }
     });
   } catch (error) {
     next(error);
   }
 };
+
