@@ -1,15 +1,14 @@
 import express from "express";
+import authRoutes from "./authRoutes.js";
 
 const router = express.Router();
 
-// Health check endpoint
+// Base health check
 router.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    message: "Geetham SmartConnect API is running",
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: "ok", message: "API live" });
 });
 
-export default router;
+// Authentication
+router.use("/auth", authRoutes);
 
+export default router;
