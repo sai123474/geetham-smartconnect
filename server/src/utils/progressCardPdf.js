@@ -1,5 +1,5 @@
 import PDFDocument from "pdfkit";
-
+import { Setting } from "../models/Setting.js"; // top-level
 export const generateProgressCardPdfBuffer = async ({
   student,
   report,
@@ -13,12 +13,22 @@ export const generateProgressCardPdfBuffer = async ({
       const buffers = [];
       doc.on("data", (chunk) => buffers.push(chunk));
       doc.on("end", () => resolve(Buffer.concat(buffers)));
+      // inside generateProgressCardPdfBuffer before printing header:
+const logoSetting = await Setting.findOne({ key: "collegeLogo" });
+let logoUrl = logoSetting?.value || null;
+
+if (logoUrl) {
+  try {
+    const logoImg = await fetch(logoUrl).then((r) => r.arrayBuffer());
+    doc.image(Buffer.from(logoImg), 50, 40, { width: 70 });
+  } catch (err) {
+    console.log("Logo render error", err);
+  }
+}
+
 
       // Header
-      doc
-        .fontSize(18)
-        .text(schoolName, { align: "center" })
-        .moveDown(0.2);
+  doc.fontSize(18).text(schoolName, 150, 50, { align: "left" });
       doc
         .fontSize(12)
         .text(campusName, { align: "center" })
