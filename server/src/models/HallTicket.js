@@ -11,18 +11,15 @@ const hallTicketSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    attendancePercentage: {
-      type: Number,
-      default: 0
+    quarter: {
+      type: String,
+      enum: ["Q1", "Q2", "Q3", "Q4", "FINAL"],
+      required: true
     },
-    feeDue: {
-      type: Number,
-      default: 0
-    },
-    eligible: {
-      type: Boolean,
-      default: false
-    },
+    attendancePercentage: Number,
+    feeDue: Number,
+    eligible: Boolean,
+    denialReason: String,
     approvedByAdmin: {
       type: Boolean,
       default: false
@@ -31,9 +28,12 @@ const hallTicketSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    remarks: String,
     generatedPdfUrl: String
   },
+  { timestamps: true }
+);
+
+export const HallTicket = mongoose.model("HallTicket", hallTicketSchema);
   { timestamps: true }
 );
 
