@@ -14,6 +14,12 @@ router.post(
   upload.single("logo"),
   uploadLogo
 );
+router.post(
+  "/signature/:role",
+  restrictTo("admin", "principal", "dean"),
+  upload.single("signature"),
+  uploadSignature
+);
 
 router.get("/logo", protect, getLogo);
 
