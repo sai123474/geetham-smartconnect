@@ -48,7 +48,7 @@ export const registerUser = async (req, res, next) => {
     next(error);
   }
 };
-onst userAgent = req.headers["user-agent"] || "Unknown device";
+const userAgent = req.headers["user-agent"] || "Unknown device";
 const ip = req.ip || req.connection.remoteAddress;
 
 const session = await LoginSession.create({
