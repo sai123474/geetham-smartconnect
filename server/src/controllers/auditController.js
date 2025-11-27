@@ -112,3 +112,15 @@ export const exportAuditLogsPdf = async (req, res, next) => {
     next(err);
   }
 };
+export const listAuditLogs = async (req, res, next) => {
+  try {
+    const logs = await AuditLog.find({})
+      .populate("user", "name role phone")
+      .sort({ createdAt: -1 })
+      .limit(200);
+
+    res.json({ status: "success", logs });
+  } catch (err) {
+    next(err);
+  }
+};
