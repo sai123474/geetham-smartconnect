@@ -42,6 +42,23 @@ export default function AuditLogs() {
           ))}
         </tbody>
       </table>
+      <div className="mt-4 flex gap-3">
+  <a
+    href={`${process.env.NEXT_PUBLIC_API_URL}/logs/export/csv`}
+    className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+    target="_blank"
+  >
+    Export CSV (Excel)
+  </a>
+  <a
+    href={`${process.env.NEXT_PUBLIC_API_URL}/logs/export/pdf`}
+    className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+    target="_blank"
+  >
+    Export PDF
+  </a>
+</div>
+
     </div>
   );
 }
