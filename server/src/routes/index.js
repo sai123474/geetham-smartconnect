@@ -9,6 +9,7 @@ import hallTicketRoutes from "./hallTicketRoutes.js";
 import progressRoutes from "./progressRoutes.js";
 import settingRoutes from "./settingRoutes.js";
 import analyticsRoutes from "./analyticsRoutes.js";
+import leaveRoutes from "./leaveRoutes.js";
 
 const router = express.Router();
 
@@ -31,5 +32,6 @@ router.use("/fees", feeRoutes);
 router.use("/progress", progressRoutes);
 router.use("/settings", settingRoutes);
 router.use("/analytics", analyticsRoutes);
+router.use("/leave", leaveRoutes);
 
 export default router;
