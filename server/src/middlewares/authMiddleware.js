@@ -24,13 +24,13 @@ export const protect = async (req, res, next) => {
     res.status(401).json({ message: "Token failed or expired" });
   }
 };
-
-export const restrictTo = (...roles) => {
+export const restrictTo = (...allowedRoles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json({ message: "Access denied. Insufficient permissions" });
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        status: "error",
+        message: "You do not have permission to perform this action"
+      });
     }
     next();
   };
