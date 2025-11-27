@@ -9,6 +9,19 @@ export const generateHallTicketPdfBuffer = async ({
   schoolName = "Geetham Educational Institutions",
   campusName = "School / Junior College"
 }) => {
+  const principalSig = await Setting.findOne({ key: "principalSignature" });
+const deanSig = await Setting.findOne({ key: "deanSignature" });
+
+if (principalSig?.value) {
+  const img = await fetch(principalSig.value).then(r => r.arrayBuffer());
+  doc.image(Buffer.from(img), 80, doc.page.height - 120, { width: 120 });
+}
+
+if (deanSig?.value) {
+  const img = await fetch(deanSig.value).then(r => r.arrayBuffer());
+  doc.image(Buffer.from(img), 350, doc.page.height - 120, { width: 120 });
+}
+
   return new Promise(async (resolve, reject) => {
     try {
       const doc = new PDFDocument({ margin: 50 });
@@ -120,6 +133,12 @@ hallTicket.subjects.forEach((subj, index) => {
         .fontSize(10)
         .text("Signature of Class Teacher", 50)
         .text("Signature of Principal / Dean", doc.page.width - 220, y + 20);
+      // Watermark
+doc.fillColor("gray").opacity(0.15);
+doc.fontSize(80).rotate(45, { origin: [300, 300] });
+doc.text("GEETHAM EDUCATIONAL INSTITUTIONS", 50, 300, { align: "center" });
+doc.rotate(-45).opacity(1).fillColor("black");
+
 
       doc.end();
     } catch (err) {
