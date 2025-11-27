@@ -27,6 +27,7 @@
     "pdfkit": "^0.13.0",
     "qrcode": "^1.5.1",
     "xlsx": "^0.18.5"
+    "@google/generative-ai": "^0.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
