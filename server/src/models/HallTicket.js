@@ -11,15 +11,27 @@ const hallTicketSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    academicYear: {
+      type: String,
+      required: true
+    },
     quarter: {
       type: String,
       enum: ["Q1", "Q2", "Q3", "Q4", "FINAL"],
       required: true
     },
+
+    hallTicketNumber: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
+
     attendancePercentage: Number,
     feeDue: Number,
     eligible: Boolean,
     denialReason: String,
+
     approvedByAdmin: {
       type: Boolean,
       default: false
@@ -28,12 +40,18 @@ const hallTicketSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+
+    approvedByAdminUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    approvedByDeanUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+
     generatedPdfUrl: String
   },
-  { timestamps: true }
-);
-
-export const HallTicket = mongoose.model("HallTicket", hallTicketSchema);
   { timestamps: true }
 );
 
