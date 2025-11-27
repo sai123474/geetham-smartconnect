@@ -4,6 +4,33 @@ import fetch from "node-fetch";
 import { AdmissionPayment } from "../models/AdmissionPayment.js";
 import { Setting } from "../models/Setting.js";
 import { uploadToS3 } from "../utils/s3.js";
+import { Student } from "../models/Student.js";
+
+export const createAdmissionPayment = async (req, res, next) => {
+  try {
+    const { studentId, academicYear, amount, mode, reference } = req.body;
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ status: "error", message: "Student not found" });
+    }
+
+    const payment = await AdmissionPayment.create({
+      studentId,
+      academicYear,
+      amount,
+      mode,
+      reference
+    });
+
+    res.json({
+      status: "success",
+      payment
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const generatePaymentReceiptPdf = async (req, res, next) => {
   try {
