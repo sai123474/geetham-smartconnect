@@ -1,7 +1,8 @@
 import express from "express";
 import multer from "multer";
 import { protect, restrictTo } from "../middlewares/authMiddleware.js";
-import { uploadLogo, getLogo } from "../controllers/settingController.js";
+import { uploadLogo, uploadSignature, getLogo } from "../controllers/settingController.js";
+
 
 const router = express.Router();
 const upload = multer(); // memory storage
