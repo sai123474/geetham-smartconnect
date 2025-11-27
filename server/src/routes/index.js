@@ -18,7 +18,7 @@ import marksImportRoutes from "./marksImportRoutes.js";
 import ocrRoutes from "./ocrRoutes.js";
 import paymentRoutes from "./paymentRoutes.js";
 import sessionRoutes from "./sessionRoutes.js";
-
+import permissionRoutes from "./permissionRoutes.js";
 
 const router = express.Router();
 
@@ -51,7 +51,7 @@ router.use("/fees/payment", paymentRoutes);           // or /payments – your c
 router.use("/marks", marksImportRoutes);             // or /import, if you like
 router.use("/ocr", ocrRoutes);
 router.use("/sessions", sessionRoutes);
-
+router.use("/permissions", permissionRoutes);
 
 
 export default router;
