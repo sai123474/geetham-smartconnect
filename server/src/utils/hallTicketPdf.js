@@ -1,5 +1,7 @@
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
+import { Setting } from "../models/Setting.js";
+
 
 export const generateHallTicketPdfBuffer = async ({
   student,
@@ -16,10 +18,15 @@ export const generateHallTicketPdfBuffer = async ({
       doc.on("end", () => resolve(Buffer.concat(buffers)));
 
       // Header
-      doc
-        .fontSize(18)
-        .text(schoolName, { align: "center" })
-        .moveDown(0.2);
+    const logoSetting = await Setting.findOne({ key: "collegeLogo" });
+let logoUrl = logoSetting?.value || null;
+
+if (logoUrl) {
+  const img = await fetch(logoUrl).then((r) => r.arrayBuffer());
+  doc.image(Buffer.from(img), 50, 40, { width: 70 });
+}
+
+doc.fontSize(18).text(schoolName, 150, 50, { align: "left" });
       doc
         .fontSize(12)
         .text(campusName, { align: "center" })
