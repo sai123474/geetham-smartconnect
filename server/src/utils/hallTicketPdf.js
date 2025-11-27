@@ -49,6 +49,26 @@ export const generateHallTicketPdfBuffer = async ({
         .text(`Fee Due: ₹${(h.feeDue || 0).toFixed(2)}`)
         .moveDown(1);
 
+      // Subjects table
+doc.moveDown(1).fontSize(12).text("Exam Subjects & Timetable:", { underline: true });
+doc.moveDown(0.5);
+
+const tableTop = doc.y;
+doc.fontSize(10);
+
+doc.text("Subject", 50, tableTop);
+doc.text("Date", 200, tableTop);
+doc.text("Time", 330, tableTop);
+doc.moveDown(0.6);
+
+hallTicket.subjects.forEach((subj, index) => {
+  const y = tableTop + 15 + index * 15;
+
+  doc.text(subj.name, 50, y);
+  doc.text(new Date(subj.examDate).toDateString(), 200, y);
+  doc.text(`${subj.startTime} - ${subj.endTime}`, 330, y);
+});
+
       // QR Code
       const qrPayload = {
         hallTicketId: h._id,
