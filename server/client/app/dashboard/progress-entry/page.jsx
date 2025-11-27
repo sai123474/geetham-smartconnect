@@ -124,10 +124,6 @@ export default function ProgressEntryPage() {
   };
 
   const validateBeforeSave = () => {
-    if (!logoFile) {
-      alert("College logo is mandatory. Please upload it first.");
-      return false;
-    }
     if (!academicYear || !examName || !className || !section || !selectedStudentId) {
       alert("Please select Academic Year, Exam, Class, Section, and Student.");
       return false;
@@ -187,10 +183,6 @@ export default function ProgressEntryPage() {
   };
 
   const handleGeneratePdf = async () => {
-    if (!logoFile) {
-      alert("College logo is mandatory to generate Progress Card.");
-      return;
-    }
     if (!reportId) {
       alert("Save the report first to get a report ID.");
       return;
@@ -287,7 +279,15 @@ export default function ProgressEntryPage() {
           </div>
         </div>
         <div className="print:hidden">
-          <LogoUploader onUpload={setLogoFile} required />
+         <div className="mb-4 p-4 border rounded-lg bg-white">
+  <p className="text-sm font-semibold">College Logo (Auto applied)</p>
+  <img
+    src={`${process.env.NEXT_PUBLIC_API_URL}/settings/logo`}
+    alt="College Logo"
+    className="mt-2 w-28 h-28 object-contain"
+  />
+</div>
+
         </div>
       </div>
 
