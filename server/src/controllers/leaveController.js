@@ -5,7 +5,7 @@ import { Concession } from "../models/Concession.js";
 import { FeeTransaction } from "../models/FeeTransaction.js";
 import { Setting } from "../models/Setting.js";
 import { uploadToS3 } from "../utils/s3.js";
-import { sendWhatsApp, sendEmail, sendSMS } from "../utils/notification.js";
+import { sendWhatsApp, sendEmail } from "../utils/notification.js";
 import PDFDocument from "pdfkit";
 
 // helper: compute full-year fee due (same logic family as progress)
