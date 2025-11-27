@@ -1,0 +1,57 @@
+import express from "express";
+import authRoutes from "./authRoutes.js";
+import protectedRoutes from "./protectedRoutes.js";
+import studentRoutes from "./studentRoutes.js";
+import attendanceRoutes from "./attendanceRoutes.js";
+import complaintRoutes from "./complaintRoutes.js";
+import feeRoutes from "./feeRoutes.js";
+import hallTicketRoutes from "./hallTicketRoutes.js";
+import progressRoutes from "./progressRoutes.js";
+import settingRoutes from "./settingRoutes.js";
+import analyticsRoutes from "./analyticsRoutes.js";
+import leaveRoutes from "./leaveRoutes.js";
+import hostelRoutes from "./hostelRoutes.js";
+import studentImportRoutes from "./studentImportRoutes.js";
+import logRoutes from "./logRoutes.js";
+import applicationRoutes from "./applicationRoutes.js";
+import marksImportRoutes from "./marksImportRoutes.js";
+import ocrRoutes from "./ocrRoutes.js";
+import paymentRoutes from "./paymentRoutes.js";
+import sessionRoutes from "./sessionRoutes.js";
+import permissionRoutes from "./permissionRoutes.js";
+
+const router = express.Router();
+
+router.get("/health", (req, res) => {
+  res.json({ status: "ok", message: "API live" });
+});
+
+// Auth
+router.use("/auth", authRoutes);
+
+// RBAC test routes
+router.use("/protected", protectedRoutes);
+router.use("/import", marksImportRoutes);
+
+// Students
+router.use("/students", studentRoutes);
+router.use("/attendance", attendanceRoutes);
+router.use("/hall-ticket", hallTicketRoutes);
+router.use("/complaints", complaintRoutes);
+router.use("/fees", feeRoutes);
+router.use("/progress", progressRoutes);
+router.use("/settings", settingRoutes);
+router.use("/analytics", analyticsRoutes);
+router.use("/leave", leaveRoutes);
+router.use("/hostel", hostelRoutes);
+router.use("/students/import-csv", studentImportRoutes);
+router.use("/logs", logRoutes);
+router.use("/application", applicationRoutes);
+router.use("/fees/payment", paymentRoutes);           // or /payments – your choice, but match frontend
+router.use("/marks", marksImportRoutes);             // or /import, if you like
+router.use("/ocr", ocrRoutes);
+router.use("/sessions", sessionRoutes);
+router.use("/permissions", permissionRoutes);
+
+
+export default router;
