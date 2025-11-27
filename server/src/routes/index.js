@@ -1,14 +1,14 @@
 import express from "express";
 import authRoutes from "./authRoutes.js";
+import protectedRoutes from "./protectedRoutes.js";
 
 const router = express.Router();
 
-// Base health check
 router.get("/health", (req, res) => {
   res.json({ status: "ok", message: "API live" });
 });
 
-// Authentication
 router.use("/auth", authRoutes);
+router.use("/protected", protectedRoutes);
 
 export default router;
