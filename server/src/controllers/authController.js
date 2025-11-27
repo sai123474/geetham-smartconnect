@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import { ENV } from "../config/env.js";
+import { LoginSession } from "../models/LoginSession.js";
 
 // Generate JWT Token
 const generateToken = (id, role) => {
@@ -47,6 +48,28 @@ export const registerUser = async (req, res, next) => {
     next(error);
   }
 };
+onst userAgent = req.headers["user-agent"] || "Unknown device";
+const ip = req.ip || req.connection.remoteAddress;
+
+const session = await LoginSession.create({
+  user: user._id,
+  userAgent,
+  ip,
+});
+
+// include sessionId inside token payload
+const token = jwt.sign(
+  { id: user._id, sessionId: session._id },
+  process.env.JWT_SECRET,
+  { expiresIn: "7d" }
+);
+
+// send token as before
+res.json({
+  status: "success",
+  token,
+  user: { id: user._id, name: user.name, role: user.role },
+});
 
 export const loginUser = async (req, res, next) => {
   try {
