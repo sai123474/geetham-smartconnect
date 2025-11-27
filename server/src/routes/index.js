@@ -6,6 +6,7 @@ import attendanceRoutes from "./attendanceRoutes.js";
 import complaintRoutes from "./complaintRoutes.js";
 import feeRoutes from "./feeRoutes.js";
 import hallTicketRoutes from "./hallTicketRoutes.js";
+import progressRoutes from "./progressRoutes.js";
 
 const router = express.Router();
 
@@ -25,5 +26,6 @@ router.use("/attendance", attendanceRoutes);
 router.use("/hall-ticket", hallTicketRoutes);
 router.use("/complaints", complaintRoutes);
 router.use("/fees", feeRoutes);
+router.use("/progress", progressRoutes);
 
 export default router;
