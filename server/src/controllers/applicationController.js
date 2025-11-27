@@ -1,123 +1,96 @@
-import { ApplicationForm } from "../models/ApplicationForm.js";
-import { uploadToS3 } from "../utils/s3.js";
-
-export const createApplicationForm = async (req, res, next) => {
-  try {
-    const {
-      academicYear,
-      name,
-      gender,
-      dob,
-      classApplyingFor,
-      parentName,
-      phone,
-      address,
-      previousSchool,
-      aadharNo
-    } = req.body;
-
-    // Validation
-    if (
-      !academicYear ||
-      !name ||
-      !dob ||
-      !classApplyingFor ||
-      !parentName ||
-      !phone ||
-      !address
-    ) {
-      return res.status(400).json({
-        status: "error",
-        message: "All required fields are not filled"
-      });
-    }
-
-    // Prevent duplicate applications based on Aadhar
-    const exists = await ApplicationForm.findOne({ aadharNo, academicYear });
-    if (exists) {
-      return res.status(409).json({
-        status: "error",
-        message: "Application already exists for this Aadhar number in this academic year"
-      });
-    }
-
-    // Upload photo if attached
-    let uploadedPhoto = null;
-    if (req.file) {
-      uploadedPhoto = await uploadToS3(
-        req.file.buffer,
-        `application_photo_${Date.now()}.${req.file.originalname.split(".").pop()}`,
-        req.file.mimetype,
-        `applicants/${academicYear}`
-      );
-    }
-
-    // Generate formatted custom Application ID
-    const count = await ApplicationForm.countDocuments({ academicYear });
-    const applicationId = `GEETHAM-APP-${academicYear.replace("-", "")}-${(count + 1)
-      .toString()
-      .padStart(4, "0")}`;
-
-    const form = await ApplicationForm.create({
-      academicYear,
-      applicationId,
-      name,
-      gender,
-      dob,
-      classApplyingFor,
-      parentName,
-      phone,
-      address,
-      previousSchool,
-      aadharNo,
-      photoUrl: uploadedPhoto?.Location || null,
-      status: "pending"
-    });
-
-    res.status(201).json({
-      status: "success",
-      message: "Application submitted successfully",
-      application: form
-    });
-  } catch (err) {
-    console.error("Application Error:", err);
-    res.status(500).json({
-      status: "error",
-      message: "Internal server error while creating application",
-      error: err.message
-    });
-  }
-};
 import PDFDocument from "pdfkit";
+import fetch from "node-fetch";
+import { uploadToS3 } from "../utils/s3.js";
+import { Setting } from "../models/Setting.js";
+import QRCode from "qrcode";
+import { ApplicationForm } from "../models/ApplicationForm.js";
 
 export const generateApplicationPdf = async (req, res, next) => {
   try {
-    const form = await ApplicationForm.findById(req.params.id);
-    if (!form) return res.status(404).json({ message: "Application not found" });
+    const { id } = req.params;
+
+    const form = await ApplicationForm.findById(id);
+    if (!form) return res.status(404).json({ status: "error", message: "Application not found" });
+
+    const logoSetting = await Setting.findOne({ key: "collegeLogo" });
+
+    // Generate QR code for verification page
+    const verificationUrl = `https://geetham.edu.in/verify/application/${id}`;
+    const qrBuffer = await QRCode.toBuffer(verificationUrl);
 
     const doc = new PDFDocument({ margin: 40 });
     const buffers = [];
+
     doc.on("data", (chunk) => buffers.push(chunk));
-    doc.on("end", () => {
-      res.setHeader("Content-Type", "application/pdf");
-      res.send(Buffer.concat(buffers));
+    doc.on("end", async () => {
+      const pdfBuffer = Buffer.concat(buffers);
+
+      // Upload PDF to S3
+      const uploaded = await uploadToS3(
+        pdfBuffer,
+        `admissions/admission_${form.applicationId}_${Date.now()}.pdf`,
+        "application/pdf",
+        `admissions/${form.academicYear}`
+      );
+
+      form.applicationPdfUrl = uploaded.Location;
+      await form.save();
+
+      res.json({
+        status: "success",
+        url: uploaded.Location
+      });
     });
 
-    doc.fontSize(18).text("Geetham Educational Institutions", { align: "center" });
-    doc.moveDown(1);
-    doc.fontSize(16).text("Admission Application Form", { align: "center" });
-    doc.moveDown(2);
+    // Header with logo
+    if (logoSetting?.value) {
+      try {
+        const img = await fetch(logoSetting.value).then((r) => r.arrayBuffer());
+        doc.image(Buffer.from(img), 40, 32, { width: 70 });
+      } catch (err) {}
+    }
 
-    doc.fontSize(12).text(`Academic Year: ${form.academicYear}`);
+    doc.fontSize(20).text("GEETHAM EDUCATIONAL INSTITUTIONS", 130, 40, {
+      align: "left"
+    });
+
+    doc.moveDown(2);
+    doc.fontSize(18).text("ADMISSION APPLICATION FORM", { align: "center" });
+    doc.moveDown(1);
+
+    // Student Photo
+    if (form.photoUrl) {
+      try {
+        const photoBuffer = await fetch(form.photoUrl).then((r) => r.arrayBuffer());
+        doc.image(Buffer.from(photoBuffer), 420, 115, { fit: [120, 140], align: "right" });
+      } catch {}
+    }
+
+    // QR Code
+    doc.image(qrBuffer, 440, 300, { width: 100 });
+
+    doc.moveDown(1);
+
+    doc.fontSize(12).text(`Application ID: ${form.applicationId}`);
+    doc.text(`Academic Year: ${form.academicYear}`);
+    doc.text(`Verified URL: ${verificationUrl}`, { link: verificationUrl, underline: true });
+    doc.moveDown(1);
+
     doc.text(`Student Name: ${form.name}`);
-    doc.text(`Gender: ${form.gender}`);
+    doc.text(`Gender: ${form.gender || "Not provided"}`);
     doc.text(`DOB: ${new Date(form.dob).toDateString()}`);
     doc.text(`Class Applying For: ${form.classApplyingFor}`);
     doc.text(`Parent Name: ${form.parentName}`);
     doc.text(`Phone: ${form.phone}`);
     doc.text(`Address: ${form.address}`);
-    doc.text(`Previous School: ${form.previousSchool}`);
+    doc.text(`Previous School: ${form.previousSchool || "Not provided"}`);
     doc.text(`Aadhar: ${form.aadharNo}`);
+
+    doc.moveDown(3);
+
+    doc.text("Parent Signature: _______________________________", 50);
+    doc.moveDown(2);
+    doc.text("Admin / Principal Signature: _______________________", 50);
 
     doc.end();
   } catch (err) {
