@@ -11,9 +11,10 @@ export async function POST(req) {
     );
   }
 
-  try:
-    const body = await req.json();
-    const { examName, academicYear, className, section, subjects } = body;
+  try {
+  const body = await req.json();
+  const { examName, academicYear, className, section, subjects } = body;
+
 
     const subjectSummary = subjects
       .map((s) => `${s.subjectName}: ${s.obtainedMarks}/${s.maxMarks}`)
