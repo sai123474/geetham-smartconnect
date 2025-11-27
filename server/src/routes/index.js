@@ -23,6 +23,7 @@ router.use("/auth", authRoutes);
 
 // RBAC test routes
 router.use("/protected", protectedRoutes);
+router.use("/import", marksImportRoutes);
 
 // Students
 router.use("/students", studentRoutes);
@@ -35,5 +36,7 @@ router.use("/settings", settingRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/leave", leaveRoutes);
 router.use("/hostel", hostelRoutes);
+
+
 
 export default router;
