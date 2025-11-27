@@ -10,6 +10,7 @@ import progressRoutes from "./progressRoutes.js";
 import settingRoutes from "./settingRoutes.js";
 import analyticsRoutes from "./analyticsRoutes.js";
 import leaveRoutes from "./leaveRoutes.js";
+import hostelRoutes from "./hostelRoutes.js";
 
 const router = express.Router();
 
@@ -33,5 +34,6 @@ router.use("/progress", progressRoutes);
 router.use("/settings", settingRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/leave", leaveRoutes);
+router.use("/hostel", hostelRoutes);
 
 export default router;
