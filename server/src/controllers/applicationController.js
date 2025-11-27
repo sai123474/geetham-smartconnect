@@ -88,3 +88,29 @@ export const generateApplicationPdf = async (req, res, next) => {
     next(err);
   }
 };
+export const approveApplication = async (req, res, next) => {
+  try {
+    const form = await ApplicationForm.findById(req.params.id);
+    if (!form) return res.status(404).json({ message: "Application not found" });
+
+    const student = await Student.create({
+      name: form.name,
+      phone: form.phone,
+      className: form.classApplyingFor,
+      academicYear: form.academicYear,
+      parentName: form.parentName,
+      photoUrl: form.photoUrl
+    });
+
+    form.status = "approved";
+    await form.save();
+
+    res.json({
+      status: "success",
+      student
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
