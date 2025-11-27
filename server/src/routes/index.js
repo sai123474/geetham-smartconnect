@@ -4,6 +4,7 @@ import protectedRoutes from "./protectedRoutes.js";
 import studentRoutes from "./studentRoutes.js";
 import attendanceRoutes from "./attendanceRoutes.js";
 import complaintRoutes from "./complaintRoutes.js";
+import feeRoutes from "./feeRoutes.js";
 
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.use("/protected", protectedRoutes);
 router.use("/students", studentRoutes);
 router.use("/attendance", attendanceRoutes);
 router.use("/complaints", complaintRoutes);
+router.use("/fees", feeRoutes);
 
 export default router;
