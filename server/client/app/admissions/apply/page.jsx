@@ -19,6 +19,10 @@ export default function OnlineAdmissionForm() {
     alert(`Application submitted — ID: ${d.application.applicationId}`);
   };
 
+  export default function AdmissionsLayout({ children }) {
+  return <>{children}</>;
+}
+
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h1 className="text-xl font-bold mb-4">Online Admission Application</h1>
