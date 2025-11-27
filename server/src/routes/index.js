@@ -11,6 +11,7 @@ import settingRoutes from "./settingRoutes.js";
 import analyticsRoutes from "./analyticsRoutes.js";
 import leaveRoutes from "./leaveRoutes.js";
 import hostelRoutes from "./hostelRoutes.js";
+import studentImportRoutes from "./studentImportRoutes.js";
 
 const router = express.Router();
 
@@ -36,6 +37,7 @@ router.use("/settings", settingRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/leave", leaveRoutes);
 router.use("/hostel", hostelRoutes);
+router.use("/students/import-csv", studentImportRoutes);
 
 
 
