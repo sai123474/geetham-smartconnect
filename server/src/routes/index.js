@@ -13,6 +13,12 @@ import leaveRoutes from "./leaveRoutes.js";
 import hostelRoutes from "./hostelRoutes.js";
 import studentImportRoutes from "./studentImportRoutes.js";
 import logRoutes from "./logRoutes.js";
+import applicationRoutes from "./applicationRoutes.js";
+import marksImportRoutes from "./marksImportRoutes.js";
+import ocrRoutes from "./ocrRoutes.js";
+import paymentRoutes from "./paymentRoutes.js";
+import sessionRoutes from "./sessionRoutes.js";
+
 
 const router = express.Router();
 
@@ -40,6 +46,12 @@ router.use("/leave", leaveRoutes);
 router.use("/hostel", hostelRoutes);
 router.use("/students/import-csv", studentImportRoutes);
 router.use("/logs", logRoutes);
+router.use("/application", applicationRoutes);
+router.use("/fees/payment", paymentRoutes);           // or /payments – your choice, but match frontend
+router.use("/marks", marksImportRoutes);             // or /import, if you like
+router.use("/ocr", ocrRoutes);
+router.use("/sessions", sessionRoutes);
+
 
 
 export default router;
