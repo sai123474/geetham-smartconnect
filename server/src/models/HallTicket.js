@@ -15,6 +15,15 @@ const hallTicketSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    subjects: [
+  {
+    name: String,
+    examDate: Date,
+    startTime: String,
+    endTime: String
+  }
+],
+
     quarter: {
       type: String,
       enum: ["Q1", "Q2", "Q3", "Q4", "FINAL"],
