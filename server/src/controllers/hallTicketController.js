@@ -97,17 +97,18 @@ export const calculateEligibility = async (req, res, next) => {
       eligible = false;
       denialReason = `Fee Due Pending: ₹${feeDue.toFixed(2)}`;
     }
+const hall = await HallTicket.create({
+  studentId,
+  examName,
+  quarter,
+  academicYear,
+  attendancePercentage,
+  feeDue,
+  eligible,
+  denialReason,
+  subjects: req.body.subjects || []
+});
 
-    const hall = await HallTicket.create({
-      studentId,
-      examName,
-      quarter,
-      academicYear,
-      attendancePercentage,
-      feeDue,
-      eligible,
-      denialReason
-    });
 
     return res.json({
       status: "success",
