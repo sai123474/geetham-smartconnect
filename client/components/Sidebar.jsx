@@ -1,38 +1,25 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import {
   LayoutDashboard,
   Users,
-  FileCheck,
-  FileSpreadsheet,
-  ClipboardList,
   GraduationCap,
   Receipt,
+  ClipboardList,
+  FileSpreadsheet,
   Settings,
   LogOut,
-  Upload,
-  ShieldCheck,
-  Monitor,
-  UserCog
 } from "lucide-react";
 
 export default function Sidebar({ role }) {
   const pathname = usePathname();
-  const [openMenu, setOpenMenu] = useState(null);
 
-  const toggleMenu = (menu) => {
-    setOpenMenu(openMenu === menu ? null : menu);
-  };
-
-  const SidebarItem = ({ href, label, icon: Icon }) => (
+  const Item = ({ href, label, Icon }) => (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-4 py-2 text-sm font-medium hover:bg-blue-50 transition ${
-        pathname === href ? "bg-blue-100 text-blue-700 font-bold" : "text-gray-700"
-      }`}
+      className={`flex items-center gap-3 px-4 py-2 rounded-md text-sm mb-1
+      ${pathname === href ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700 hover:bg-gray-100"}`}
     >
       <Icon size={18} />
       {label}
@@ -40,100 +27,22 @@ export default function Sidebar({ role }) {
   );
 
   return (
-    <aside className="w-64 bg-white border-r shadow-sm min-h-screen flex flex-col">
-      <div className="p-5 border-b">
-        <h1 className="text-xl font-bold text-blue-700">SmartConnect Admin</h1>
-        <p className="text-xs text-gray-500 capitalize">Role: {role}</p>
+    <aside className="w-60 bg-white border-r min-h-screen p-4">
+      <h2 className="text-xl font-bold text-blue-700 mb-4">SmartConnect</h2>
+      <div className="text-xs text-gray-500 mb-4">Role: {role}</div>
+
+      <Item href="/dashboard" label="Dashboard" Icon={LayoutDashboard} />
+      <Item href="/dashboard/applications" label="Applications" Icon={GraduationCap} />
+      <Item href="/dashboard/students/import" label="Bulk Import" Icon={Users} />
+      <Item href="/dashboard/marks" label="Marks Entry" Icon={FileSpreadsheet} />
+      <Item href="/dashboard/fees" label="Fee Collection" Icon={Receipt} />
+      <Item href="/dashboard/logs" label="Activity Logs" Icon={ClipboardList} />
+
+      <div className="mt-8 border-t pt-3">
+        <Item href="/dashboard/settings" label="System Settings" Icon={Settings} />
       </div>
 
-      <nav className="flex-1 overflow-y-auto">
-
-        <SidebarItem href="/dashboard" label="Dashboard" icon={LayoutDashboard} />
-
-        {/* Admissions Menu */}
-        <div>
-          <button
-            className="flex w-full items-center justify-between px-4 py-2 font-semibold text-sm text-gray-700 hover:bg-blue-50"
-            onClick={() => toggleMenu("admissions")}
-          >
-            <span className="flex items-center gap-3">
-              <GraduationCap size={18} /> Admissions
-            </span>
-          </button>
-
-          {openMenu === "admissions" && (
-            <div className="ml-8 flex flex-col">
-              <SidebarItem href="/dashboard/applications" label="Applications" icon={FileCheck} />
-              <SidebarItem href="/dashboard/admissions/import" label="Bulk Import" icon={Upload} />
-              <SidebarItem href="/dashboard/admissions/approved" label="Approved Students" icon={Users} />
-            </div>
-          )}
-        </div>
-
-        {/* Fees Menu */}
-        <div>
-          <button
-            className="flex w-full items-center justify-between px-4 py-2 font-semibold text-sm text-gray-700 hover:bg-blue-50"
-            onClick={() => toggleMenu("fees")}
-          >
-            <span className="flex items-center gap-3">
-              <Receipt size={18} /> Fees & Finance
-            </span>
-          </button>
-
-          {openMenu === "fees" && (
-            <div className="ml-8 flex flex-col">
-              <SidebarItem href="/dashboard/fees" label="Collect Fee" icon={Receipt} />
-              <SidebarItem href="/dashboard/fees/due" label="Fee Due & Letters" icon={ClipboardList} />
-            </div>
-          )}
-        </div>
-
-        {/* Exams & Marks */}
-        <div>
-          <button
-            className="flex w-full items-center justify-between px-4 py-2 font-semibold text-sm text-gray-700 hover:bg-blue-50"
-            onClick={() => toggleMenu("exam")}
-          >
-            <span className="flex items-center gap-3">
-              <FileSpreadsheet size={18} /> Exams
-            </span>
-          </button>
-
-          {openMenu === "exam" && (
-            <div className="ml-8 flex flex-col">
-              <SidebarItem href="/dashboard/marks" label="Marks Entry" icon={FileSpreadsheet} />
-              <SidebarItem href="/dashboard/progress-card" label="Progress Cards" icon={ClipboardList} />
-              <SidebarItem href="/dashboard/hall-ticket" label="Hall Tickets" icon={FileCheck} />
-            </div>
-          )}
-        </div>
-
-        {/* System Menu */}
-        {(role === "superadmin" || role === "dean" || role === "principal" || role === "admin") && (
-          <div>
-            <button
-              className="flex w-full items-center justify-between px-4 py-2 font-semibold text-sm text-gray-700 hover:bg-blue-50"
-              onClick={() => toggleMenu("system")}
-            >
-              <span className="flex items-center gap-3">
-                <Settings size={18} /> System
-              </span>
-            </button>
-
-            {openMenu === "system" && (
-              <div className="ml-8 flex flex-col">
-                <SidebarItem href="/dashboard/users" label="User Roles" icon={UserCog} />
-                <SidebarItem href="/dashboard/permissions" label="Permissions Matrix" icon={ShieldCheck} />
-                <SidebarItem href="/dashboard/logs" label="Activity Logs" icon={Monitor} />
-                <SidebarItem href="/dashboard/security/sessions" label="Active Sessions" icon={Monitor} />
-              </div>
-            )}
-          </div>
-        )}
-      </nav>
-
-      <button className="flex items-center gap-3 px-4 py-3 border-t hover:bg-red-50 text-red-600 font-semibold">
+      <button className="flex items-center gap-3 mt-auto text-red-600 px-4 py-2">
         <LogOut size={18} /> Logout
       </button>
     </aside>
