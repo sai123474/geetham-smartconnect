@@ -1,38 +1,65 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
-export default function VerifyPage({ params }) {
-  const { id } = params;
-  const [data, setData] = useState(null);
+export default function HallTicketVerifyPage() {
+  const { id } = useParams();
+  const [ticket, setTicket] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchHallTicket = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/hallticket/verify/${id}`
+      );
+      const data = await res.json();
+      setTicket(data.hallTicket || null);
+    } catch (err) {
+      console.error(err);
+      alert("Error verifying hall ticket");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/hall-ticket/${id}`)
-      .then(r => r.json())
-      .then(d => setData(d))
-      .catch(() => setData({ error: true }));
+    if (id) fetchHallTicket();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (!data) return <p className="p-6 text-center">Verifying...</p>;
+  if (loading) {
+    return <p className="p-6 text-gray-500">Verifying…</p>;
+  }
 
-  if (data.error || !data.hall) {
+  if (!ticket) {
     return (
-      <div className="p-6 text-center text-red-600 font-bold">
-        ⚠ Invalid or Tampered Document
+      <div className="p-6">
+        <p className="text-red-600 font-semibold">
+          Hall Ticket not found or invalid.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto text-center">
-      <h1 className="text-xl font-bold">Document Verified</h1>
-      <p className="mt-3 text-green-600 font-semibold">Authentic & Original ✔</p>
-
-      <div className="mt-4 p-4 bg-gray-50 rounded border">
-        <p>Student: {data.hall.studentId.name}</p>
-        <p>Exam: {data.hall.examName}</p>
-        <p>Hall Ticket No: {data.hall.hallTicketNumber}</p>
-        <p>Fee Due: {data.hall.feeDue}</p>
+    <div className="p-6 max-w-xl mx-auto">
+      <h1 className="text-xl font-bold text-green-600 mb-3">
+        Hall Ticket Verified
+      </h1>
+      <div className="bg-white border rounded-xl shadow p-4 text-sm space-y-1">
+        <p>
+          <b>Student:</b> {ticket.studentName}
+        </p>
+        <p>
+          <b>Admission No:</b> {ticket.admissionNo}
+        </p>
+        <p>
+          <b>Class:</b> {ticket.className}
+        </p>
+        <p>
+          <b>Exam:</b> {ticket.examName}
+        </p>
       </div>
     </div>
   );
