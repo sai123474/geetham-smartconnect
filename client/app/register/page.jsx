@@ -22,7 +22,7 @@ export default function RegisterPage() {
 
       // backend expects email + phone separately; for now treat this as email
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
         {
           method: "POST",
           headers: {
