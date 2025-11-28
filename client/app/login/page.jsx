@@ -1,7 +1,8 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,76 +11,52 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!emailOrPhone || !password) {
+      toast.error("Fill all fields");
+      return;
+    }
+
     try {
       setLoading(true);
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ emailOrPhone, password })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailOrPhone, password }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.message || "Login failed");
-        setLoading(false);
-        return;
+      if (!res.ok) return toast.error(data.message);
+
+      Cookies.set("token", data.token);      // store token
+      Cookies.set("role", data.user.role);   // store role
+
+      toast.success("Login successful!");
+
+      // redirect based on role
+      if (data.user.role === "superadmin" || data.user.role === "admin") {
+        router.push("/dashboard");
+      } else if (data.user.role === "parent" || data.user.role === "student") {
+        router.push("/dashboard/student");
       }
-
-      // save token
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.user.role);
-
-      router.push("/dashboard");
     } catch (err) {
-      alert("Error logging in");
+      toast.error("Error logging in");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white shadow-lg rounded-xl p-8 max-w-md w-full">
-        <h1 className="text-2xl font-bold text-center text-blue-600 mb-4">
-          Geetham SmartConnect
-        </h1>
-        <p className="text-center text-gray-500 mb-6">Login to continue</p>
-
-        <input
-          type="text"
-          placeholder="Email or Phone"
-          className="border p-3 rounded w-full mb-4"
-          onChange={(e) => setEmailOrPhone(e.target.value)}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          className="border p-3 rounded w-full mb-4"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="bg-blue-600 w-full text-white py-3 rounded-lg font-semibold hover:bg-blue-700"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-        <p className="text-xs text-center text-gray-500 mt-4">
-  Don&apos;t have an account?{" "}
-  <button
-    onClick={() => router.push("/register")}
-    className="text-blue-600 underline"
-  >
-    Register
-  </button>
-</p>
-
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <Toaster />
+      <button
+        onClick={handleLogin}
+        disabled={loading}
+        className="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg"
+      >
+        {loading ? "Logging in..." : "Login"}
+      </button>
     </div>
   );
 }
