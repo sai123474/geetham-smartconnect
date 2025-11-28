@@ -1,51 +1,63 @@
 "use client";
+
 import { useState } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
-
-export default function MarksExcelUpload() {
+export default function MarksExcelUploadPage() {
   const [file, setFile] = useState(null);
-  const [result, setResult] = useState(null);
 
-  const upload = async () => {
-    const form = new FormData();
-    form.append("file", file);
+  const handleUpload = async () => {
+    if (!file) return alert("Select an Excel file first");
 
-    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const res = await fetch(`${API}/import/marks/import-excel`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: form
-    });
+    try {
+      const token = localStorage.getItem("token");
 
-    const data = await res.json();
-    setResult(data.extracted);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/marks/import/excel`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: formData,
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Upload failed");
+        return;
+      }
+
+      alert("Marks Excel processed successfully");
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading Excel");
+    }
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-xl font-bold mb-4">Import Marks From Excel</h1>
+    <div className="p-6 max-w-xl">
+      <h1 className="text-xl font-bold text-blue-600 mb-4">
+        Marks Import – Excel Upload
+      </h1>
 
-      <input
-        type="file"
-        accept=".xlsx,.xls,.csv"
-        onChange={(e) => setFile(e.target.files[0])}
-        className="mb-4"
-      />
+      <div className="bg-white p-4 rounded-xl shadow border space-y-3 text-sm">
+        <input
+          type="file"
+          accept=".xlsx,.xls"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
 
-      <button
-        onClick={upload}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-      >
-        Upload & Extract
-      </button>
-
-      {result && (
-        <pre className="mt-4 bg-gray-200 p-3 text-xs rounded">
-          {JSON.stringify(result, null, 2)}
-        </pre>
-      )}
+        <button
+          onClick={handleUpload}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md"
+        >
+          Upload & Process
+        </button>
+      </div>
     </div>
   );
 }
