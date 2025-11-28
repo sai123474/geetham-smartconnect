@@ -27,13 +27,14 @@ export const registerUser = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    const newUser = await User.create({
-      name,
-      email,
-      phone,
-      role,
-      passwordHash
-    });
+  const newUser = await User.create({
+  name,
+  email,
+  phone,
+  role,
+  password: passwordHash
+});
+
 
     res.status(201).json({
       status: "success",
