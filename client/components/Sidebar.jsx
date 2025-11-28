@@ -12,6 +12,10 @@ import {
   LogOut,
 } from "lucide-react";
 
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+
+const router = useRouter();
 export default function Sidebar({ role }) {
   const pathname = usePathname();
 
@@ -25,6 +29,12 @@ export default function Sidebar({ role }) {
       {label}
     </Link>
   );
+  
+const handleLogout = () => {
+  Cookies.remove("token");
+  Cookies.remove("role");
+  router.push("/login");
+};
 
   return (
     <aside className="w-60 bg-white border-r min-h-screen p-4">
