@@ -7,6 +7,26 @@ import { ENV } from "./config/env.js";
 import { connectDB } from "./config/db.js";
 import apiRoutes from "./routes/index.js";
 import { notFound, errorHandler } from "./middlewares/errorHandler.js";
+import bcrypt from "bcryptjs";
+import { User } from "./models/User.js";
+
+const createSuperAdminIfNotExists = async () => {
+  const existing = await User.findOne({ role: "superadmin" });
+  if (!existing) {
+    const hash = await bcrypt.hash("geetham", 10);
+    await User.create({
+      name: "Sai",
+      email: "yamparalasaikrishna6@gmail.com",
+      phone: "7013833119",
+      role: "superadmin",
+      password: hash
+    });
+    console.log("Superadmin created: admin@geetham.edu | Admin@123");
+  }
+};
+
+createSuperAdminIfNotExists();
+
 
 const app = express();
 
